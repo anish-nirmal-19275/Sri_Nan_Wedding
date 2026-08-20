@@ -251,8 +251,8 @@
         /* ── Footer ── */
         footer { background:var(--dark-bg); padding:2.5rem 1.5rem; text-align:center; }
         .footer-names { font-family:'Great Vibes',cursive; font-size:2rem; color:var(--gold); }
-        .footer-sub   { font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:2px; margin-top:.4rem; }
-        .footer-credit{ font-size:.7rem; color:rgba(201,168,76,.28); font-style:italic; margin-top:1rem; }
+        .footer-sub   { font-size:1rem; color:var(--gold); letter-spacing:2px; margin-top:.4rem; }
+        .footer-credit{ font-size:1rem; color:var(--gold); font-style:italic; margin-top:1rem; }
 
         /* ── Scroll fade-in ── */
         .fade-in { opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease; }
@@ -281,48 +281,125 @@
             background: linear-gradient(to right, transparent, rgba(201,168,76,.45), transparent);
         }
 
-        .gallery-grid {
+        /* ── Editorial Mosaic ── */
+        .gallery-mosaic {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.4rem;
-            max-width: 960px;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: repeat(6, 280px);
+            gap: 10px;
+            max-width: 980px;
             margin: 0 auto;
         }
 
-        /* First image spans 2 rows — hero portrait */
-        .gallery-item:first-child { grid-row: span 2; }
-        .gallery-item:first-child img { aspect-ratio: unset; height: 100%; }
+        /*
+         Portrait images → tall cells (span 2 rows)
+         Landscape images → wide cells (span 2 cols)
+         Every image uses object-fit:cover — no black bars anywhere
+        */
+        .g-item-1  { grid-column: 1;     grid-row: 1 / 3; } /* Sri_Nan — hero tall   */
+        .g-item-2  { grid-column: 2;     grid-row: 1;     } /* pre_1  — square       */
+        .g-item-3  { grid-column: 3;     grid-row: 1;     } /* pre_2  — square       */
+        .g-item-4  { grid-column: 2 / 4; grid-row: 2;     } /* pre_3  — wide         */
+        .g-item-5  { grid-column: 1;     grid-row: 3 / 5; } /* pre_4  — tall portrait*/
+        .g-item-6  { grid-column: 2 / 4; grid-row: 3;     } /* pre_5  — wide         */
+        .g-item-7  { grid-column: 2;     grid-row: 4;     } /* pre_6  — square       */
+        .g-item-8  { grid-column: 3;     grid-row: 4;     } /* pre_7  — square       */
+        .g-item-9  { grid-column: 1 / 3; grid-row: 5;     } /* pre_8  — wide         */
+        .g-item-10 { grid-column: 3;     grid-row: 5 / 7; } /* pre_9  — tall portrait*/
+        .g-item-11 { grid-column: 1 / 3; grid-row: 6;     } /* pre_10 — wide         */
 
-        .gallery-item {
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 4/5;
-            background: #111;
+        .g-item {
+            position: relative; overflow: hidden;
+            cursor: pointer; background: #0d0404;
         }
-        /* Inner gold border frame */
-        .gallery-item::before {
-            content: '';
-            position: absolute;
-            inset: 7px;
-            border: 1px solid rgba(201,168,76,.5);
-            z-index: 2;
-            pointer-events: none;
-            transition: border-color .35s, inset .35s;
+
+        /* Gold inner frame */
+        .g-item::before {
+            content: ''; position: absolute; inset: 8px;
+            border: 1px solid rgba(201,168,76,.3);
+            z-index: 2; pointer-events: none;
+            transition: border-color .4s, inset .4s;
         }
-        .gallery-item:hover::before {
-            border-color: var(--gold);
-            inset: 10px;
-        }
-        .gallery-item img {
+        .g-item:hover::before { border-color: rgba(201,168,76,.9); inset: 14px; }
+
+        .g-item img {
             width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform .55s ease, filter .4s;
-            filter: sepia(8%) brightness(1.01);
+            object-fit: cover; display: block;
+            transition: transform .65s cubic-bezier(.25,.46,.45,.94);
         }
-        .gallery-item:hover img {
-            transform: scale(1.07);
-            filter: sepia(0%) brightness(1.04);
+        .g-item:hover img { transform: scale(1.09); }
+
+        /* Hover overlay */
+        .g-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top,
+                rgba(28,10,8,.8) 0%,
+                rgba(28,10,8,.15) 55%,
+                transparent 100%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-end;
+            padding-bottom: 1.4rem;
+            opacity: 0; z-index: 3;
+            transition: opacity .4s;
+        }
+        .g-item:hover .g-overlay { opacity: 1; }
+        .g-overlay-icon { font-size: 1.6rem; line-height: 1; }
+        .g-overlay-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .7rem; letter-spacing: 4px;
+            text-transform: uppercase; color: rgba(240,216,133,.85);
+            margin-top: .35rem;
+        }
+
+        /* ── Lightbox ── */
+        .lightbox {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.96);
+            z-index: 10000; display: none;
+            align-items: center; justify-content: center;
+        }
+        .lightbox.active { display: flex; animation: lbIn .3s ease; }
+        @keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .lb-inner {
+            position: relative;
+            max-width: min(92vw, 860px); max-height: 90vh;
+        }
+        .lb-inner img {
+            max-width: 100%; max-height: 86vh;
+            object-fit: contain; display: block;
+            border: 1px solid rgba(201,168,76,.25);
+            box-shadow: 0 0 80px rgba(0,0,0,.9);
+            animation: lbImgIn .3s ease;
+        }
+        @keyframes lbImgIn {
+            from { transform: scale(.95); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+        .lb-close {
+            position: absolute; top: -3rem; right: 0;
+            color: rgba(201,168,76,.6); font-size: 2.2rem;
+            cursor: pointer; background: none; border: none;
+            line-height: 1; transition: color .3s; font-weight: 300;
+        }
+        .lb-close:hover { color: var(--gold-light); }
+        .lb-arrow {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            background: rgba(201,168,76,.07); border: 1px solid rgba(201,168,76,.2);
+            color: var(--gold-light); font-size: 2rem;
+            width: 3.2rem; height: 3.2rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 2px;
+            transition: background .3s;
+            font-family: 'Cormorant Garamond', serif; font-weight: 300;
+        }
+        .lb-arrow:hover { background: rgba(201,168,76,.22); }
+        #lb-prev { left: .8rem; }
+        #lb-next { right: .8rem; }
+        .lb-counter {
+            position: absolute; bottom: -2.6rem; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,.28); font-size: .68rem;
+            letter-spacing: 4px; text-transform: uppercase; white-space: nowrap;
         }
 
         /* ── Venue Cards ── */
@@ -358,15 +435,20 @@
             line-height: 1.7; margin-bottom: 1.2rem;
         }
 
-        @media (max-width:700px) {
-            .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-            .gallery-item:first-child { grid-row: span 1; }
-            .gallery-item:first-child img { aspect-ratio: 4/5; height: auto; }
+        @media (max-width:720px) {
+            .gallery-mosaic {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: unset;
+            }
+            .g-item-1, .g-item-2, .g-item-3, .g-item-4, .g-item-5,
+            .g-item-6, .g-item-7, .g-item-8, .g-item-9, .g-item-10, .g-item-11 {
+                grid-column: auto; grid-row: auto; aspect-ratio: 1;
+            }
         }
         @media (max-width:480px) {
-            .border-frame  { padding: 2rem 1.2rem; }
-            .events-grid   { flex-direction: column; align-items: center; }
-            .gallery-grid  { grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+            .border-frame { padding: 2rem 1.2rem; }
+            .events-grid  { flex-direction: column; align-items: center; }
+            .gallery-mosaic { grid-template-columns: 1fr 1fr; gap: 7px; }
         }
     </style>
 </head>
@@ -414,43 +496,75 @@
     <h2 class="section-title fade-in">Our Story</h2>
     <div class="thin-line"></div>
 
-    <div class="gallery-grid">
-        <!-- Hero portrait spans 2 rows -->
-        <div class="gallery-item fade-in">
-            <img src="Sri_Nan.jpeg" alt="Sridharshan and Nandana" loading="lazy">
+    <div class="gallery-mosaic">
+        <!-- col1 rows1-2 : Sri_Nan — couple standing, faces at upper-third of tall cell -->
+        <div class="g-item g-item-1 fade-in" data-idx="0">
+            <img src="Sri_Nan.jpeg" alt="Sridharshan and Nandana" loading="lazy" style="object-position: center 20%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_1.jpeg" alt="Pre-wedding 1" loading="lazy">
+        <!-- col2 row1 : pre_1 — couple sitting, faces at ~40-50% of image -->
+        <div class="g-item g-item-2 fade-in" data-idx="1">
+            <img src="pre_wedding_1.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 50%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_2.jpeg" alt="Pre-wedding 2" loading="lazy">
+        <!-- col3 row1 : pre_2 — standing couple, faces at top 15-25%, anchor high -->
+        <div class="g-item g-item-3 fade-in" data-idx="2">
+            <img src="pre_wedding_2.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 22%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_3.jpeg" alt="Pre-wedding 3" loading="lazy">
+        <!-- col2-3 row2 : pre_3 — couple looking at each other, faces at ~35-50%, shift up -->
+        <div class="g-item g-item-4 fade-in" data-idx="3">
+            <img src="pre_wedding_3.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 40%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_4.jpeg" alt="Pre-wedding 4" loading="lazy">
+        <!-- col1 rows3-4 : pre_4 — portrait close-up, couple fills tall cell well -->
+        <div class="g-item g-item-5 fade-in" data-idx="4">
+            <img src="pre_wedding_4.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 45%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_5.jpeg" alt="Pre-wedding 5" loading="lazy">
+        <!-- col2-3 row3 : pre_5 — couple by lake, centred to trim top sky -->
+        <div class="g-item g-item-6 fade-in" data-idx="5">
+            <img src="pre_wedding_5.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 52%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_6.jpeg" alt="Pre-wedding 6" loading="lazy">
+        <!-- col2 row4 : pre_6 — extreme close-up, faces sit at very top 5-20%, anchor to top -->
+        <div class="g-item g-item-7 fade-in" data-idx="6">
+            <img src="pre_wedding_6.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 10%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_7.jpeg" alt="Pre-wedding 7" loading="lazy">
+        <!-- col3 row4 : pre_7 — couple on beach, faces in upper third -->
+        <div class="g-item g-item-8 fade-in" data-idx="7">
+            <img src="pre_wedding_7.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 30%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_8.jpeg" alt="Pre-wedding 8" loading="lazy">
+        <!-- col1-2 row5 : pre_8 — sitting couple, faces at ~35-50%, shift up -->
+        <div class="g-item g-item-9 fade-in" data-idx="8">
+            <img src="pre_wedding_8.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 45%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_9.jpeg" alt="Pre-wedding 9" loading="lazy">
+        <!-- col3 rows5-6 : pre_9 — couple sitting on beach, at lower 70% of tall portrait -->
+        <div class="g-item g-item-10 fade-in" data-idx="9">
+            <img src="pre_wedding_9.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 75%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
-        <div class="gallery-item fade-in">
-            <img src="pre_wedding_10.jpeg" alt="Pre-wedding 10" loading="lazy">
+        <!-- col1-2 row6 : pre_10 — lift shot; woman lifted so her face is higher (~38%), man's face ~52% -->
+        <div class="g-item g-item-11 fade-in" data-idx="10">
+            <img src="pre_wedding_10.jpeg" alt="Pre-wedding" loading="lazy" style="object-position: center 46%;">
+            <div class="g-overlay"><span class="g-overlay-icon">♥</span><span class="g-overlay-text">View</span></div>
         </div>
     </div>
 </section>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <div class="lb-inner">
+        <button class="lb-close" id="lb-close" aria-label="Close">&#10005;</button>
+        <img id="lb-img" src="" alt="Wedding photo">
+        <div class="lb-counter" id="lb-counter"></div>
+    </div>
+    <button class="lb-arrow" id="lb-prev" aria-label="Previous">&#8249;</button>
+    <button class="lb-arrow" id="lb-next" aria-label="Next">&#8250;</button>
+</div>
 
 <!-- ══════════════════════════════════
      COUNTDOWN
@@ -521,7 +635,8 @@
             <div class="venue-card-name">PMM Auditorium</div>
             <div class="venue-card-addr">
                 PMM Auditorium, Sasthankarai<br>
-                Colachel, Tamil Nadu 629251
+                Colachel, <br>
+                Tamil Nadu 629251
             </div>
             <a class="map-btn"
                href="https://maps.app.goo.gl/Cd3sUBNLCTxt5Sp27"
@@ -767,6 +882,66 @@ function launchConfetti () {
         }, i * 35);
     }
 }
+
+/* ────────────────────────────────────────
+   7. GALLERY LIGHTBOX
+──────────────────────────────────────── */
+(function () {
+    const srcs = [
+        'Sri_Nan.jpeg',
+        'pre_wedding_1.jpeg','pre_wedding_2.jpeg','pre_wedding_3.jpeg',
+        'pre_wedding_4.jpeg','pre_wedding_5.jpeg','pre_wedding_6.jpeg',
+        'pre_wedding_7.jpeg','pre_wedding_8.jpeg','pre_wedding_9.jpeg',
+        'pre_wedding_10.jpeg'
+    ];
+
+    const lb      = document.getElementById('lightbox');
+    const lbImg   = document.getElementById('lb-img');
+    const lbCount = document.getElementById('lb-counter');
+    let cur = 0;
+
+    function show (idx) {
+        cur = (idx + srcs.length) % srcs.length;
+        lbImg.src = srcs[cur];
+        lbCount.textContent = (cur + 1) + ' • ' + srcs.length;
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hide () {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => { lbImg.src = ''; }, 300);
+    }
+
+    // Open on gallery item click
+    document.querySelectorAll('.g-item').forEach(el => {
+        el.addEventListener('click', () => show(+el.dataset.idx));
+    });
+
+    document.getElementById('lb-close').addEventListener('click', hide);
+    document.getElementById('lb-prev').addEventListener('click', () => show(cur - 1));
+    document.getElementById('lb-next').addEventListener('click', () => show(cur + 1));
+
+    // Close on backdrop click
+    lb.addEventListener('click', e => { if (e.target === lb) hide(); });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+        if (!lb.classList.contains('active')) return;
+        if (e.key === 'Escape')      hide();
+        if (e.key === 'ArrowLeft')   show(cur - 1);
+        if (e.key === 'ArrowRight')  show(cur + 1);
+    });
+
+    // Touch swipe
+    let tx = 0;
+    lb.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend',   e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 50) show(dx < 0 ? cur + 1 : cur - 1);
+    });
+})();
 </script>
 
 </body>
